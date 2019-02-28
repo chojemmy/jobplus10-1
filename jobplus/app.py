@@ -10,6 +10,7 @@ def create_app(config):
     app = Flask(__name__)
     app.config.from_object(configs.get(config))
     register_extensions(app)
+    Migrate(app,db)
     register_blueprints(app)
     return app
 
@@ -27,7 +28,8 @@ def register_extensions(app):
     login_manager.login_view = 'front.login'
 
 def register_blueprints(app):
-    from .handlers import front
+    from .handlers import front, job
     app.register_blueprint(front)
+    app.register_blueprint(job)
 
 
