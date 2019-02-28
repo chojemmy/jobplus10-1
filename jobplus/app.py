@@ -1,35 +1,33 @@
 from flask import Flask, render_template
 from flask_migrate import Migrate
-from flask_login import LoginManger
+from flask_login import LoginManager
 from jobplus.config import configs
 from jobplus.models import db, User
-
-# 注册插件到app
-def register_extensions(app):
-    pass
-
-def register_blueprints(app):
-    from .handlers import blueprints
-    for bp in blueprints:
-        app.register_blueprint(bp)
-
-def register_error_handlers(app):
-    '''页面出错时，返回的信息'''
-    pass
 
 
 def create_app(config):
     '''app 工厂'''
     app = Flask(__name__)
-
-    if isinstance(config, dict):
-        app.config.update(config)
-    else:
-        app.config.from_object(configs.get(config, None))
-
+    app.config.from_object(configs.get(config))
     register_extensions(app)
-    register_blurprints(app)
-    register_error_handlers(app)
-
+    register_blueprints(app)
     return app
+
+def register_extensions(app):
+    db.init_app(app)
+    Migrate(app, db)
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def user_loader(id):
+        return User.query.get(id)
+
+    login_manager.login_view = 'front.login'
+
+def register_blueprints(app):
+    from .handlers import front
+    app.register_blueprint(front)
+
 

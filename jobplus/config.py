@@ -1,7 +1,7 @@
 class BaseConfig(object):
     '''配置基类'''
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRT_KEY = 'chenanming'
+    SECRET_KEY = 'jobplus10-1'
     INDEX_PER_PAGE = 9
     ADMIN_PER_PAGE = 15
 
@@ -14,7 +14,7 @@ class ProductionConfig(BaseConfig):
     '''生产环境'''
     pass
 
-class TestingConfig(app):
+class TestingConfig(BaseConfig):
     pass
 
 configs = {
