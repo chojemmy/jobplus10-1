@@ -71,3 +71,27 @@ class CompanyDetail(Base):
     def __repr__(self):
         return '<CompanyDetail {}>'.format(self.id)
 
+class Job(Base):
+    __tablename__ = 'job'
+
+    id = db.Column(db.Integer, primary_key=True)
+    #职位名称
+    name = db.Column(db.String(23))
+    #职位薪资范围
+    salary_low = db.Column(db.Integer, nullable=False)
+    salary_high = db.Column(db.Integer, nullable=False)
+    #职位地点
+    location = db.Column(db.String(24))
+    #职位标签
+    tags = db.Column(db.String(128))
+
+    company_id = db.Column(db.Integer, db.ForeignKey('company_detail.id', ondelete='CASCADE'))
+
+    company = db.relationship('CompanyDetail', uselist=False)
+
+    def __repr__(self):
+        return '<Job {}>'.format(self.name)
+
+    @property
+    def tag_list(self):
+        return self.tags.split(',')
