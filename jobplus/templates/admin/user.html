@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_pagination %}
+
+{% block title %}Admin-users{% endblock %}
+
+{% block operation %}
+<a href="{{ url_for('admin.create_user') }}" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    添加用户
+</a>
+
+{% block operation %}
+<a href="{{ url_for('admin.create_company') }}" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    添加企业
+</a>
+{% endblock %}
+
+{% block admin %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>用户名/企业名</th>
+            <th>类型</th>
+            <th>邮箱</th>
+            <th>手机号</th>
+            <th>姓名</th>
+            <th>企业网站</th>
+            <th>操作</th>
+        </tr>
+        <tbody>
+        {% for user in pagination %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ if user.is_company }}企业{{ else }}求职者{{ endif }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ if user.phone }}{{ user.phone }}{{ else }}{{ endif }}</td>
+            <td>{{ if user.is_company }}{{ user.detail.list }}{{ endif }}</td>
+        </tr>
+        {% endfor %}
+        <tbody>
+    </thead>
+</table>
+{% endblock %}
