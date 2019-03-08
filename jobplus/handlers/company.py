@@ -19,7 +19,7 @@ def index():
 @company.route('/profile/', methods=['GET', 'POST'])
 @login_required
 def profile():
-    if not current_user.is_company():
+    if not current_user.is_company:
         flash('您还不是企业用户', 'warning')
         return redirect(url_for('front.index'))
     form = CompanyProfileForm(obj=current_user.company_detail)

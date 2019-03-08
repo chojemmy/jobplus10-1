@@ -14,6 +14,12 @@ class Base(db.Model):
             default=datetime.utcnow,
             onupdate=datetime.utcnow)
 
+user_job = db.Table(
+        'user_job',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id', ondelete='CASCADE')),
+        db.Column('job_id', db.Integer, db.ForeignKey('job.id', ondelete='CASCADE'))
+        )
+
 class User(Base, UserMixin):
     __tablename__ = 'user'
 
@@ -25,12 +31,15 @@ class User(Base, UserMixin):
     username = db.Column(db.String(32), unique=True, index=True, nullable=False)
     email = db.Column(db.String(64), unique=True, index=True, nullable=False)
     _password = db.Column('password', db.String(256), nullable=False)
+    real_name = db.Column(db.String(32))
     phone = db.Column(db.String(32))
     work_years =db.Column(db.SmallInteger)
     resume = db.Column(db.String(64))
     role = db.Column(db.SmallInteger, default=ROLE_USER)
-
+    collect_jobs = db.relationship('Job', secondary=user_job)
     detail = db.relationship('CompanyDetail',uselist=False)
+    is_disable = db.Column(db.Boolean, default=False)
+
     # 用户对应的简历
     def __repr__(self):
         return '<User:{}>'.format(self.name)
@@ -53,6 +62,10 @@ class User(Base, UserMixin):
     @property
     def is_company(self):
         return self.role == self.ROLE_COMPANY
+
+    @property
+    def is_staff(self):
+        return self.role == self.ROLE_USER
 
 class CompanyDetail(Base):
     __tablename__ = 'company_detail'
@@ -85,9 +98,9 @@ class Job(Base):
     #职位标签
     tags = db.Column(db.String(128))
 
-    company_id = db.Column(db.Integer, db.ForeignKey('company_detail.id', ondelete='CASCADE'))
+    company_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
 
-    company = db.relationship('CompanyDetail', uselist=False)
+    company = db.relationship('User', uselist=False, backref=db.backref('jobs', lazy='dynamic'))
 
     def __repr__(self):
         return '<Job {}>'.format(self.name)
@@ -95,3 +108,10 @@ class Job(Base):
     @property
     def tag_list(self):
         return self.tags.split(',')
+
+class Resume(Base):
+    __tablename__ = 'resume'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', uselist=False)

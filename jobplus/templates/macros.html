@@ -74,11 +74,11 @@
 {% macro render_company(company) %}
 <div class="col-sm-6 col-md-3 company-item">
     <div class="thumbnail">
-        <img src="{{ company_detail.detaol.logo }}" width="100" height="100" alt="...">
-        <h3>{{ company_detail.detail.name }}</h3>
-        <p>{{ company_detail.detail.field }}</p>
+        <img src="{{ company.detail.logo }}" width="100" height="100" alt="...">
+        <h3>{{ company.detail.name }}</h3>
+        <p>{{ company.detail.field }}</p>
     <hr>
-    <p>在招职位：{{ company_detail.jobs.count() }}</p>
+    <p>在招职位：{{ company.jobs.count() }}</p>
     </div>
 </div>
 {% endmacro %}
