@@ -22,7 +22,9 @@ def index():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email_or_name.data).first()
+        if not user:
+            user = User.query.filter_by(username=form.email_or_name.data).first()
         login_user(user, form.remember_me.data)
         next = 'user.profile'
         if user.is_admin:

@@ -1,29 +1,34 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, ValidationError, IntegerField, TextAreaField
-from wtforms.validators import Length, Email, EqualTo, Required
+from wtforms.validators import Length, Email, EqualTo, DataRequired
 from jobplus.models import db, User, CompanyDetail
 
 class LoginForm(FlaskForm):
-        email = StringField('邮箱', validators=[Required(), Email()])
-        password = PasswordField('密码', validators=[Required(), Length(6, 24)])
+        email_or_name = StringField('用户名/邮箱', validators=[DataRequired()])
+        password = PasswordField('密码', validators=[DataRequired(), Length(6, 24)])
         remember_me = BooleanField('记住我')
         submit = SubmitField('提交')
 
-        def validate_email(self, field):
-            if not User.query.filter_by(email=field.data).first():
-                raise ValidationError('邮箱未注册')
+        def validate_email_or_name(self, field):
+            u1 = User.query.filter_by(email=field.data).first()
+            u2 = User.query.filter_by(username=field.data).first()
+            if not u1 and not u2:
+                raise ValidationError('邮箱或用户名不存在')
 
         def validate_password(self, field):
-            user = User.query.filter_by(email=self.email.data).first()
+            user = User.query.filter_by(username=self.email_or_name.data).first()
+            if not user:
+                user = User.query.filter_by(email=self.email_or_name.data).first()
             if user and not user.check_password(field.data):
                 raise ValidationError('密码错误')
+            self.user = user
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('用户名', validators=[Required(), Length(3, 24)])
-    email = StringField('邮箱', validators=[Required(), Email()])
-    password = PasswordField('密码', validators=[Required(), Length(6, 24)])
-    repeat_password = PasswordField('重复密码', validators=[Required(), Length(6, 24)])
+    username = StringField('用户名', validators=[DataRequired(), Length(3, 24)])
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
+    password = PasswordField('密码', validators=[DataRequired(), Length(6, 24)])
+    repeat_password = PasswordField('重复密码', validators=[DataRequired(), Length(6, 24)])
     submit = SubmitField('提交')
 
     def validate_username(self, field):
@@ -43,7 +48,7 @@ class RegisterForm(FlaskForm):
         return user
 
 class UserEditForm(FlaskForm):
-    email = StringField('邮箱', validators=[Required(), Email()])
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
     password = StringField('密码')
     real_name = StringField('姓名')
     phone = StringField('手机号')
@@ -58,7 +63,7 @@ class UserEditForm(FlaskForm):
 
 class CompanyEditForm(FlaskForm):
     username = StringField('企业名称')
-    email = StringField('邮箱', validators=[Required(), Email()])
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
     password = StringField('密码')
     phone = StringField('手机号')
     site = StringField('公司网站', validators=[Length(0, 64)])
@@ -83,7 +88,7 @@ class CompanyEditForm(FlaskForm):
 
 class UserProfileForm(FlaskForm):
     real_name = StringField('姓名')
-    email = StringField('邮箱', validators=[Required(), Email()])
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
     password = PasswordField('密码（不填写保持不变）')
     phone = StringField('手机号')
     work_years = IntegerField('工作年限')
@@ -108,9 +113,9 @@ class UserProfileForm(FlaskForm):
 
 class CompanyProfileForm(FlaskForm):
     username = StringField('企业名称')
-    email = StringField('邮箱', validators=[Required(), Email()])
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
     password = PasswordField('密码（不填写保持不变）')
-    slug = StringField('Slug', validators=[Required(), Length(3, 24)])
+    slug = StringField('Slug', validators=[DataRequired(), Length(3, 24)])
     location = StringField('地址', validators=[Length(0, 64)])
     site = StringField('公司网站', validators=[Length(0, 64)])
     logo = StringField('Logo')
